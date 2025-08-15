@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { MapPin, RefreshCw, TriangleAlert as AlertTriangle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,6 +21,7 @@ export default function CurrentLocationScreen() {
     try {
       const currentLocation = await getCurrentLocation();
       setLocation(currentLocation);
+
       const jurisdictionData = await JurisdictionService.getJurisdictionByCoordinates(
         currentLocation.coords.latitude,
         currentLocation.coords.longitude
@@ -32,10 +33,6 @@ export default function CurrentLocationScreen() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadLocation();
-  }, []);
 
   return (
     <LinearGradient colors={['#1e40af', '#3b82f6']} style={styles.container}>
@@ -60,6 +57,26 @@ export default function CurrentLocationScreen() {
               <RefreshCw size={20} color={loading ? "#9ca3af" : "#1e40af"} />
             </TouchableOpacity>
           </View>
+
+          {/* Show button if no location yet */}
+          {!location && !loading && (
+            <View style={styles.instructionContainer}>
+              <Text style={styles.instructionText}>
+                Tap the button below to allow location access and find your jurisdiction.
+              </Text>
+              <TouchableOpacity
+                onPress={loadLocation}
+                style={{
+                  marginTop: 16,
+                  backgroundColor: '#1e40af',
+                  padding: 12,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Find My Jurisdiction</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {loading && (
             <View style={styles.loadingContainer}>
